@@ -9,8 +9,9 @@ async def erp_auditor_node(state: dict):
     invoice_id = state.get("target_invoice_id", "UNKNOWN")
     mock_db_extraction = f"[DB_RESULT] Invoice {invoice_id} shows Amount: 45,000 INR; Vendor: TechCorp."
     
-    llm = ChatGroq(model="llama3-70b-8192", temperature=0, groq_api_key=settings.GROQ_API_KEY)
-    response = llm.invoke([FunctionMessage(name="erp_database_lookup", content=mock_db_extraction)] + list(state["messages"]))
+    # Updated to the active Llama 3.3 Versatile architecture
+    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0, groq_api_key=settings.GROQ_API_KEY)
+    response = llm.invoke([FunctionMessage(name="erp_database_lookup", content=mock_db_extraction)] + list(state.get("messages", [])))
     
     return {
         "messages": [response],
@@ -18,7 +19,7 @@ async def erp_auditor_node(state: dict):
     }
 
 async def compliance_specialist_node(state: dict):
-    latest_msg = state["messages"][-1].content if state["messages"] else ""
+    latest_msg = state.get("messages", [])[-1].content if state.get("messages") else ""
     
     compliance_rules = await vector_manager.secure_query_policies(
         query=latest_msg,
@@ -26,10 +27,11 @@ async def compliance_specialist_node(state: dict):
         department=state.get("department", "FINANCE")
     )
     
-    llm = ChatGroq(model="llama3-70b-8192", temperature=0, groq_api_key=settings.GROQ_API_KEY)
+    # Updated to the active Llama 3.3 Versatile architecture
+    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0, groq_api_key=settings.GROQ_API_KEY)
     system_input = f"Corporate Compliance Guidelines Found:\n{compliance_rules}\n\nAssess validity:"
     
-    response = llm.invoke([FunctionMessage(name="vector_store_policy_lookup", content=system_input)] + list(state["messages"]))
+    response = llm.invoke([FunctionMessage(name="vector_store_policy_lookup", content=system_input)] + list(state.get("messages", [])))
     
     return {
         "messages": [response],

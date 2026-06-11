@@ -1,7 +1,6 @@
 import uuid
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Body, HTTPException, Request, status
-from fastapi.responses import JSONResponse
 from langchain_core.messages import HumanMessage
 
 from app.config import settings
@@ -10,7 +9,6 @@ from app.database import init_enterprise_db_schema
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Production lifespan orchestration replacing deprecated startup events
     await init_enterprise_db_schema()
     yield
 
@@ -28,6 +26,14 @@ async def ensure_correlation_id(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-Request-ID"] = correlation_id
     return response
+
+@app.get("/health", status_code=status.HTTP_200_OK)
+async def health_check():
+    return {
+        "status": "operational",
+        "engine": "LangGraph Swarm Engine",
+        "persistence": "Active"
+    }
 
 @app.post("/api/v1/reconcile-invoice")
 async def execute_swarm_reconciliation(

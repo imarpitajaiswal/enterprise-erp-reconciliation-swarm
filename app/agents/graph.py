@@ -8,7 +8,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from app.config import settings
 from app.agents.nodes import erp_auditor_node, compliance_specialist_node
 
-class SwarmAgentState(TypedDict):
+class SwarmAgentState(TypedDict, total=False):
     messages: Annotated[Sequence[BaseMessage], operator.add]
     next_node: str
     clearance_level: str
@@ -17,8 +17,8 @@ class SwarmAgentState(TypedDict):
     reconciliation_status: str
 
 def run_supervisor_router(state: SwarmAgentState):
-    # Swapped to Groq's free Llama 3 70B model for high-tier reasoning
-    llm = ChatGroq(model="llama3-70b-8192", temperature=0, groq_api_key=settings.GROQ_API_KEY)
+    # Updated to the active Llama 3.3 Versatile architecture
+    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0, groq_api_key=settings.GROQ_API_KEY)
     
     system_prompt = (
         "You are the Big 4 Executive Routing Supervisor. Analyze the current conversation state.\n"
@@ -27,7 +27,7 @@ def run_supervisor_router(state: SwarmAgentState):
         "If reconciliation assessment is complete, return 'FINISH'."
     )
     
-    messages = [HumanMessage(content=system_prompt)] + list(state["messages"])
+    messages = [HumanMessage(content=system_prompt)] + list(state.get("messages", []))
     response = llm.invoke(messages)
     
     content = response.content.strip()
@@ -40,12 +40,14 @@ def run_supervisor_router(state: SwarmAgentState):
 
 def create_compiled_swarm_graph():
     workflow = StateGraph(SwarmAgentState)
+    
     workflow.add_node("supervisor", run_supervisor_router)
     workflow.add_node("erp_auditor", erp_auditor_node)
     workflow.add_node("compliance_specialist", compliance_specialist_node)
+    
     workflow.set_entry_point("supervisor")
     
-    def routing_condition(state: SwarmAgentState) -> Literal["erp_auditor", "compliance_specialist", END]:
+    def routing_condition(state: SwarmAgentState) -> Literal["erp_auditor", "compliance_specialist", "__end__"]:
         target = state.get("next_node", "FINISH")
         if target == "erp_auditor":
             return "erp_auditor"
