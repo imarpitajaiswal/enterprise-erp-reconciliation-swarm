@@ -1,0 +1,12 @@
+fastapi==0.111.0
+uvicorn==0.30.1
+langgraph==0.0.60
+langchain-core==0.2.7
+langchain-groq==0.1.5
+langchain-huggingface==0.0.3
+sentence-transformers>=2.7.0
+pinecone-client==4.1.1
+sqlalchemy==2.0.31
+pydantic==2.7.4
+pydantic-settings==2.3.3
+asyncpg==0.29.0
