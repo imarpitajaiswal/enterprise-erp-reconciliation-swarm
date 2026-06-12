@@ -1,13 +1,17 @@
 from pinecone import Pinecone
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_pinecone import PineconeEmbeddings
 from app.config import settings
 
 class SecureVectorStoreManager:
     def __init__(self):
         self.pc = Pinecone(api_key=settings.PINECONE_API_KEY)
         self.index = self.pc.Index(settings.PINECONE_INDEX_NAME)
-        # Using a free, local, enterprise-grade open-source embedding model
-        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        
+        # Bypassing local memory limits by utilizing Pinecone's Serverless Inference
+        self.embeddings = PineconeEmbeddings(
+            model="multilingual-e5-large",
+            pinecone_api_key=settings.PINECONE_API_KEY
+        )
 
     async def secure_query_policies(self, query: str, clearance_level: str, department: str, top_k: int = 3):
         query_vector = await self.embeddings.aembed_query(query)
