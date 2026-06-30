@@ -6,8 +6,6 @@
 [![Pinecone](https://img.shields.io/badge/Pinecone-000000?style=for-the-badge&logo=pinecone&logoColor=white)](https://www.pinecone.io/)
 [![Cloud Deployment](https://img.shields.io/badge/Render_Live_Status-Deployed-success?style=for-the-badge&logo=render)](https://render.com/)
 
-**Live API Endpoint (Swagger UI):** [LIVE_RENDER_URL](https://erp-reconciliation-engine.onrender.com/docs)
-
 ## 📊 Executive Summary
 Supply chain procurement anomalies and ERP ledger mismatches cost large enterprises millions annually. Standard automation breaks when context is required, and traditional RAG pipelines fail in regulated environments due to hallucination and lack of strict access control. 
 
